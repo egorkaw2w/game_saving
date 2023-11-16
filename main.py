@@ -2,6 +2,7 @@ import random
 import time
 import json
 import csv
+import os
 def show_inventory():
     print("У твоего персонажа есть: \n")
     for i in hero:
@@ -14,28 +15,34 @@ def location():
         print(i)
 def saving():
     print("Сохраняю")
-    with open ("saves.json","a") as file:
+    with open ("saves.json","w") as file:
         json.dump(hero,file,ensure_ascii=False, indent = 4)
-def saving_csv():
+def saving_csv(hero):
     print("сохранение csv")
-    with open ("saves.csv","w") as file:
-        writer = csv.writer(file)
-        writer.writerow(
-            "ХР",
-            "Sila",
-            "Agila",
-            "intelekt",
-            "harizma"
+    if os.path.exists("saves.csv"):
+        with open ("saves.csv","a", encoding="cp1251") as file:
 
-        )
-        with open("saves.json") as file:
-            src = json.load(file)
-            data = [[hero["healpoints"],hero["invetory"]]]
-            with open("saves.csv","w",newline="") as file:
-                writer = csv.writer(file)
-                for row in data:
-                    writer.writerow(row)
-# В общем. Честно не понял как сделать с csv. Пожалуйста объясните ^_^
+            heroList = []
+            heroList.append(hero)
+            print(heroList)
+            a = []
+            for i in hero.keys():
+                a.append(i)
+            writer = csv.DictWriter(file, delimiter=';', fieldnames=a)
+            writer.writerows(heroList)
+    else:
+        with open("saves.csv", "a", encoding="cp1251", newline='') as file:
+
+            heroList = []
+            heroList.append(hero)
+            print(heroList)
+            a = []
+            for i in hero.keys():
+                a.append(i)
+            writer = csv.DictWriter(file, delimiter=';', fieldnames=a)
+            writer.writeheader()
+            writer.writerows(heroList)
+
 
     print("сохранил")
 
@@ -309,9 +316,9 @@ while hero.get("healpoints") > 0:
                 print("2. нет")
                 choice = int(input("Выберите: "))
                 if choice == 1:
-                    saving_csv()
+                    saving_csv(hero)
                     print("пока")
-                    break
+                    exit()
                 elif choice == 2:
                     print("а ты рисковый")
                     break
@@ -333,20 +340,8 @@ while hero.get("healpoints") > 0:
                 del save
                 with open("saves.json","w") as file:
                     json.dump(save,file,indent = 4)
-    except:
-        print("")
+    except IOError as e:
+        print(f"{e}")
 
 if hero.get("healpoints") < 0:
     print("К сожалению, вы умерли. Ваш труп выкинули и скормили диким псам, а инвентарь разделили между полицейскими")
-
-
-
-
-
-
-
-
-
-
-
-
